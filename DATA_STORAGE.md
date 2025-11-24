@@ -97,11 +97,15 @@ Data will be lost if:
 ### Storage Location
 
 The data is stored using the Web Storage API:
-```javascript
+```typescript
 // Example from services/storage.ts
 private read<T>(key: string, defaultVal: T): T {
-  const data = localStorage.getItem(key);
-  return data ? JSON.parse(data) : defaultVal;
+  try {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : defaultVal;
+  } catch {
+    return defaultVal;
+  }
 }
 
 private write(key: string, data: any) {
