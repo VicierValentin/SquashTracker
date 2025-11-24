@@ -1,0 +1,5 @@
+{
+  "name": "SquashTrack",
+  "description": "A full-stack style squash tournament manager and tracker. Features player profiles, tournament generation (pools), and accurate match scoring logic.",
+  "requestFramePermissions": []
+}
