@@ -59,5 +59,19 @@ The app uses **browser localStorage** to persist all data locally on your device
 For detailed information about data storage capabilities, limitations, and recommendations, see [DATA_STORAGE.md](DATA_STORAGE.md).
 
 **Quick Summary:**
-- **Personal use**: Perfect for tracking your own tournaments on a single device
-- **Multi-user tournaments**: Would require adding a backend database for shared data
+- **Personal use**: Perfect for tracking your own tournaments on a single device (default mode)
+- **Multi-user tournaments**: Multi-user mode is now available! See [Multi-User Setup Guide](docs/MULTI_USER_SETUP.md)
+
+## Multi-User Mode (Optional)
+
+🎉 **NEW**: Multi-user support is now available via Firebase!
+
+Enable shared tournament data across multiple users and devices:
+- ✅ Real-time score updates visible to all users
+- ✅ Shared tournament management
+- ✅ Cloud-based data persistence
+- ✅ Proper email/password authentication
+
+**To enable multi-user mode**, follow the [Multi-User Setup Guide](docs/MULTI_USER_SETUP.md).
+
+**Default mode** uses localStorage (single-user, single-device) and requires no setup.
