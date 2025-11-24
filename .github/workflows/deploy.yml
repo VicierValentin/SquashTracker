@@ -41,8 +41,6 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
-          # Firebase configuration (optional - only needed for multi-user mode)
-          # Add these as repository secrets in Settings > Secrets and variables > Actions
           VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
           VITE_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
