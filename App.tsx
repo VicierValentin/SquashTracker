@@ -1,6 +1,8 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { MemoryRouter, Routes, Route, Navigate, Link, useLocation } from './lib/router';
 import { db } from './services/storage';
+import { firebaseDb } from './services/firebaseStorage';
+import { isMultiUserEnabled } from './services/storageAdapter';
 import { User, UserRole } from './types';
 import { Trophy, Users, User as UserIcon, LogOut, PlusCircle, Activity } from 'lucide-react';
 
@@ -14,9 +16,10 @@ import Profile from './pages/Profile';
 // Context
 interface AuthContextType {
   user: User | null;
-  login: (username: string) => void;
-  register: (username: string, display: string) => void;
+  login: (username: string, password?: string) => void;
+  register: (username: string, display: string, email?: string, password?: string) => void;
   logout: () => void;
+  isMultiUser: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>(null!);
@@ -84,35 +87,74 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const currentUser = db.getCurrentUser();
-    setUser(currentUser);
-    setLoading(false);
+    if (isMultiUserEnabled) {
+      // Firebase authentication
+      firebaseDb.initAuth((user) => {
+        setUser(user);
+        setLoading(false);
+      });
+    } else {
+      // LocalStorage authentication
+      const currentUser = db.getCurrentUser();
+      setUser(currentUser);
+      setLoading(false);
+    }
   }, []);
 
-  const login = (username: string) => {
-    const u = db.login(username);
-    if (u) setUser(u);
-    else alert('User not found. Please register.');
-  };
-
-  const register = (username: string, display: string) => {
+  const login = async (username: string, password?: string) => {
     try {
-      const u = db.register(username, display);
-      setUser(u);
+      if (isMultiUserEnabled) {
+        // Firebase login requires email and password
+        if (!password) {
+          alert('Password is required for multi-user mode');
+          return;
+        }
+        const u = await firebaseDb.login(username, password);
+        setUser(u);
+      } else {
+        // LocalStorage login (original behavior)
+        const u = db.login(username);
+        if (u) setUser(u);
+        else alert('User not found. Please register.');
+      }
     } catch (e) {
       alert((e as Error).message);
     }
   };
 
-  const logout = () => {
-    db.logout();
+  const register = async (username: string, display: string, email?: string, password?: string) => {
+    try {
+      if (isMultiUserEnabled) {
+        // Firebase registration
+        if (!email || !password) {
+          alert('Email and password are required for multi-user mode');
+          return;
+        }
+        const u = await firebaseDb.register(username, display, email, password);
+        setUser(u);
+      } else {
+        // LocalStorage registration (original behavior)
+        const u = db.register(username, display);
+        setUser(u);
+      }
+    } catch (e) {
+      alert((e as Error).message);
+    }
+  };
+
+  const logout = async () => {
+    if (isMultiUserEnabled) {
+      await firebaseDb.logout();
+    } else {
+      db.logout();
+    }
     setUser(null);
   };
 
   if (loading) return <div className="flex h-screen items-center justify-center">Loading...</div>;
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout, isMultiUser: isMultiUserEnabled }}>
       <MemoryRouter>
         <Layout>
           <Routes>
