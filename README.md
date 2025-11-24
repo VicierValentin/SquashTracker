@@ -38,3 +38,26 @@ You can also manually trigger a deployment:
 1. Go to the "Actions" tab in your repository
 2. Select the "Deploy to GitHub Pages" workflow
 3. Click "Run workflow"
+
+## Data Storage
+
+**📊 Yes, this app CAN store data like IDs and match results!**
+
+The app uses **browser localStorage** to persist all data locally on your device, including:
+- User profiles and credentials
+- Tournament information
+- Match results and scores
+- Player standings
+- Activity audit logs
+
+**Important Notes:**
+- ✅ Data persists across browser sessions
+- ✅ Works offline after initial load
+- ⚠️ Data is stored locally per browser/device (not shared between users)
+- ⚠️ Data can be lost if browser cache is cleared
+
+For detailed information about data storage capabilities, limitations, and recommendations, see [DATA_STORAGE.md](DATA_STORAGE.md).
+
+**Quick Summary:**
+- **Personal use**: Perfect for tracking your own tournaments on a single device
+- **Multi-user tournaments**: Would require adding a backend database for shared data
