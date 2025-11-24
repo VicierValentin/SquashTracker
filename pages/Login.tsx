@@ -3,19 +3,39 @@ import { useAuth } from '../App';
 import { Trophy } from 'lucide-react';
 
 export default function Login() {
-  const { login, register } = useAuth();
+  const { login, register, isMultiUser } = useAuth();
   const [isRegistering, setIsRegistering] = useState(false);
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username) return;
-
-    if (isRegistering) {
-      register(username, displayName || username);
+    
+    if (isMultiUser) {
+      // Multi-user mode: requires email and password
+      if (!email || !password) {
+        alert('Email and password are required');
+        return;
+      }
+      if (isRegistering) {
+        if (!username || !displayName) {
+          alert('Username and display name are required');
+          return;
+        }
+        register(username, displayName, email, password);
+      } else {
+        login(email, password);
+      }
     } else {
-      login(username);
+      // Single-user mode: only username needed
+      if (!username) return;
+      if (isRegistering) {
+        register(username, displayName || username);
+      } else {
+        login(username);
+      }
     }
   };
 
@@ -34,34 +54,99 @@ export default function Login() {
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="username" className="sr-only">Username</label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Username (unique login)"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </div>
-            {isRegistering && (
-              <div>
-                <label htmlFor="display-name" className="sr-only">Display Name</label>
-                <input
-                  id="display-name"
-                  name="display-name"
-                  type="text"
-                  required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                  placeholder="Display Name (e.g. John Doe)"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                />
-              </div>
+          <div className="rounded-md shadow-sm space-y-3">
+            {isMultiUser ? (
+              <>
+                {/* Multi-user mode: Email/Password authentication */}
+                {isRegistering && (
+                  <>
+                    <div>
+                      <label htmlFor="username" className="sr-only">Username</label>
+                      <input
+                        id="username"
+                        name="username"
+                        type="text"
+                        required
+                        className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                        placeholder="Username (unique login)"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="display-name" className="sr-only">Display Name</label>
+                      <input
+                        id="display-name"
+                        name="display-name"
+                        type="text"
+                        required
+                        className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                        placeholder="Display Name (e.g. John Doe)"
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                      />
+                    </div>
+                  </>
+                )}
+                <div>
+                  <label htmlFor="email" className="sr-only">Email</label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                    placeholder="Email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="password" className="sr-only">Password</label>
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Single-user mode: Username only */}
+                <div>
+                  <label htmlFor="username" className="sr-only">Username</label>
+                  <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    required
+                    className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                    placeholder="Username (unique login)"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
+                </div>
+                {isRegistering && (
+                  <div>
+                    <label htmlFor="display-name" className="sr-only">Display Name</label>
+                    <input
+                      id="display-name"
+                      name="display-name"
+                      type="text"
+                      required
+                      className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                      placeholder="Display Name (e.g. John Doe)"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                    />
+                  </div>
+                )}
+              </>
             )}
           </div>
 

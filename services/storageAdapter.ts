@@ -4,7 +4,7 @@ import { firebaseDb } from './firebaseStorage';
 
 // Feature flag to enable Firebase
 // Set to true to use Firebase, false to use localStorage
-const USE_FIREBASE = import.meta.env.VITE_USE_FIREBASE === 'true' || false;
+const USE_FIREBASE = import.meta.env.VITE_USE_FIREBASE === 'true';
 
 // Export the appropriate storage service
 export const storageService = USE_FIREBASE ? firebaseDb : localDb;

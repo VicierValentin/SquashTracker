@@ -113,7 +113,9 @@ class FirebaseStorageService {
     
     if (!userDocs.empty) {
       const userDoc = userDocs.docs[0];
-      await updateDoc(userDoc.ref, updatedUser as any);
+      // Convert User object to plain object for Firestore
+      const updateData = { ...updatedUser };
+      await updateDoc(userDoc.ref, updateData);
       await this.logAudit(actor, 'UPDATE', 'USER', updatedUser.login, `Updated profile for ${updatedUser.displayName}`);
       
       if (this.currentUser && this.currentUser.login === updatedUser.login) {
@@ -393,17 +395,22 @@ class FirebaseStorageService {
   // --- Audit ---
 
   private async logAudit(actor: string, action: AuditLog['action'], targetType: AuditLog['targetType'], targetId: string, details: string) {
-    const auditRef = doc(collection(db, 'audit'));
-    const log: AuditLog = {
-      id: auditRef.id,
-      timestamp: new Date().toISOString(),
-      actorLogin: actor,
-      action,
-      targetType,
-      targetId,
-      details,
-    };
-    await setDoc(auditRef, log);
+    try {
+      const auditRef = doc(collection(db, 'audit'));
+      const log: AuditLog = {
+        id: auditRef.id,
+        timestamp: new Date().toISOString(),
+        actorLogin: actor,
+        action,
+        targetType,
+        targetId,
+        details,
+      };
+      await setDoc(auditRef, log);
+    } catch (error) {
+      // Log audit failures but don't throw - audit logging should not break operations
+      console.error('Failed to log audit entry:', error);
+    }
   }
 }
 
